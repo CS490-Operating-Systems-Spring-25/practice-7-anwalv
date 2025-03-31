@@ -1,21 +1,28 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <unistd.h>  // Для sleep()
-
+#include <unistd.h> 
 int main() {
     std::vector<std::ofstream> files;
-    int i = 0;
+    size_t file_count = 0;
 
     while (true) {
-        files.emplace_back("file" + std::to_string(i) + ".txt");
-        if (!files.back()) {
-            std::cout << "Cannot open more files! Stopping at " << i << " files.\n";
+        std::ofstream file("file_" + std::to_string(file_count) + ".txt");
+
+        if (!file.is_open()) {
+            std::cerr << "Cannot open more files! Stopping at " << file_count << " files." << std::endl;
             break;
         }
-        std::cout << "Opened file #" << i << std::endl;
-        i++;
-        sleep(1);
 
+        files.push_back(std::move(file));
+        file_count++;
+        sleep(1);
+        if (file_count % 1000 == 0) {
+            std::cout << "Opened " << file_count << " files..." << std::endl;
+            sleep(10);
+        }
+    }
+
+    std::cout << "Total files opened: " << file_count << std::endl;
     return 0;
 }
